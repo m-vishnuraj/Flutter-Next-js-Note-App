@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:note_app_sample/data/data.dart';
+import 'package:note_app_sample/data/note_model/note_model.dart';
 
 enum ActionType {
   addNote,
@@ -19,20 +21,25 @@ class ScreenAddNote extends StatelessWidget {
         onPressed: () {
           switch (type) {
             case ActionType.addNote:
-              // Add note
+              saveNote();
               break;
             case ActionType.editNote:
               // Edit note
               break;
           }
         },
-        icon: const Icon(Icons.save),
+        icon: const Icon(
+          Icons.save,
+          color: Colors.white,
+        ),
         label: const Text(
           'Save',
           style: TextStyle(color: Colors.white),
         ),
       );
 
+  final _titleController = TextEditingController();
+  final _contentController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,6 +56,7 @@ class ScreenAddNote extends StatelessWidget {
           child: Column(
             children: [
               TextFormField(
+                controller: _titleController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Title',
@@ -58,6 +66,7 @@ class ScreenAddNote extends StatelessWidget {
                 height: 20,
               ),
               TextFormField(
+                controller: _contentController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   hintText: 'Content',
@@ -70,5 +79,18 @@ class ScreenAddNote extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> saveNote() async {
+    final title = _titleController.text;
+    final content = _contentController.text;
+
+    final _newNote = NoteModel.create(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      content: content,
+    );
+
+    NoteDB().createNote(_newNote);
   }
 }

@@ -40,9 +40,12 @@ class ScreenAddNote extends StatelessWidget {
 
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(type == ActionType.addNote ? 'Add Note' : 'Edit Note'),
         actions: [
@@ -91,6 +94,13 @@ class ScreenAddNote extends StatelessWidget {
       content: content,
     );
 
-    NoteDB().createNote(_newNote);
+    final newNote = await NoteDB().createNote(_newNote);
+
+    if (newNote != null) {
+      print('Note saved');
+      Navigator.of(_scaffoldKey.currentContext!).pop();
+    } else {
+      print('Error while saving note');
+    }
   }
 }

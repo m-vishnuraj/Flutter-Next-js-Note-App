@@ -1,11 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:note_app_sample/data/data.dart';
+import 'package:note_app_sample/data/note_model/note_model.dart';
 import 'package:note_app_sample/view/screen_add_note.dart';
 
-class ScreenAllNotes extends StatelessWidget {
-  const ScreenAllNotes({super.key});
+class ScreenAllNotes extends StatefulWidget {
+  ScreenAllNotes({super.key});
+
+  @override
+  State<ScreenAllNotes> createState() => _ScreenAllNotesState();
+}
+
+class _ScreenAllNotesState extends State<ScreenAllNotes> {
+  final List<NoteModel> noteList = [];
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final _noteList = await NoteDB().getAllNote();
+      noteList.clear();
+      setState(() {
+        noteList.addAll(_noteList.reversed);
+      });
+      print(_noteList);
+    });
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Notes'),
@@ -16,14 +33,17 @@ class ScreenAllNotes extends StatelessWidget {
           mainAxisSpacing: 10,
           crossAxisSpacing: 10,
           padding: const EdgeInsets.all(20),
-          children: List.generate(
-            10,
-            (index) => NoteItem(
-                id: index.toString(),
-                title: 'Lorem Ipsum Title $index',
-                content:
-                    'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.'),
-          ),
+          children: List.generate(noteList.length, (index) {
+            final _note = noteList[index];
+            if (_note.id == null) {
+              return const SizedBox();
+            }
+            return NoteItem(
+              id: _note.id!,
+              title: _note.title ?? 'No title',
+              content: _note.content ?? 'No content',
+            );
+          }),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
